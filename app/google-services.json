@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "701161551481",
+    "project_id": "proyectomoviles-f4151",
+    "storage_bucket": "proyectomoviles-f4151.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:701161551481:android:bc1d178098b82db9c206a8",
+        "android_client_info": {
+          "package_name": "com.carlossierrasequera.pokeapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "701161551481-fbdht0scu7mjrefapc5ij3cbscl3tgi5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.carlossierrasequera.pokeapp",
+            "certificate_hash": "4af374b4cfe89a740dd2bb47413307f3edf7cb41"
+          }
+        },
+        {
+          "client_id": "701161551481-84li8u8riu1sqrimonh61t0qasovbmh2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVnoZDctvjI785VyAASMHyCbuezMXY_9Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "701161551481-84li8u8riu1sqrimonh61t0qasovbmh2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
