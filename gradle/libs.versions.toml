@@ -12,6 +12,7 @@ firebaseAuthKtx = "23.1.0"
 navCompose = "2.8.5"
 serialization = "1.3.0"
 firebaseBom = "33.8.0"
+firebaseFirestoreKtx = "25.1.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -35,6 +36,7 @@ firebase-analytics = {group = "com.google.firebase", name = "firebase-analytics"
 firebase-auth = {group = "com.google.firebase", name = "firebase-auth-ktx"}
 coil = { group = "io.coil-kt", name = "coil-compose", version = "2.4.0" }
 play-services = {group = "com.google.android.gms", name = "play-services-auth", version = "21.3.0"}
+firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

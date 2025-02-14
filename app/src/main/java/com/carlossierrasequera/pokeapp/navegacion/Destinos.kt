@@ -13,3 +13,9 @@ object Home
 
 @Serializable
 object ForgotPassword
+
+@Serializable
+object Entrenadores
+
+@Serializable
+object Batallas

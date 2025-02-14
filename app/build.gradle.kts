@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.play.services)
 
     implementation(libs.coil)
+    implementation(libs.firebase.firestore.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

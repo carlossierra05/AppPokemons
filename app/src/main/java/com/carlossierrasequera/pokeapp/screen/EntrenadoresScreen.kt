@@ -1,61 +1,51 @@
 package com.carlossierrasequera.pokeapp.screen
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import com.carlossierrasequera.pokeapp.data.AuthManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.json.JSONObject
-import java.net.URL
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.carlossierrasequera.pokeapp.data.AuthManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(auth: AuthManager, navigateToLogin: () -> Unit, navigateToEntrenadores: () -> Unit, navigateToBatallas: () -> Unit) {
+fun EntrenadoresScreen(auth: AuthManager, navigateToPokemon: () -> Unit, navigateToBatallas: () -> Unit, navigateToLogin: () -> Unit) {
+    val entrenadoresList = remember { mutableStateListOf<Entrenador>() }
+    val db = Firebase.firestore
     var showDialog by remember { mutableStateOf(false) } // Controla el AlertDialog
-    var pokemonList by remember { mutableStateOf<List<Pokemon>>(emptyList()) }
-    var searchQuery by remember { mutableStateOf("") }
-    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        coroutineScope.launch(Dispatchers.IO) {
-            val response = URL("https://pokeapi.co/api/v2/pokemon?limit=10").readText()
-            val results = JSONObject(response).getJSONArray("results")
-            val pokemons = mutableListOf<Pokemon>()
-            for (i in 0 until results.length()) {
-                val obj = results.getJSONObject(i)
-                val name = obj.getString("name")
-                val imageUrl =
-                    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${i + 1}.png"
-                pokemons.add(Pokemon(name, imageUrl))
+        db.collection("entrenadores").get().addOnSuccessListener { result ->
+            entrenadoresList.clear()
+            for (document in result) {
+                entrenadoresList.add(
+                    Entrenador(
+                        document.getString("nombre") ?: "Desconocido",
+                        document.getLong("edad")?.toInt() ?: 0,
+                        document.getString("region") ?: "Desconocida"
+                    )
+                )
             }
-            pokemonList = pokemons
         }
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("PokeApp", fontSize = 22.sp, fontWeight = FontWeight.Bold) },
+                title = { Text("Entrenadores", fontSize = 22.sp, fontWeight = FontWeight.Bold) },
                 actions = {
                     IconButton(onClick = { showDialog = true }) {
                         Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Menú")
@@ -68,30 +58,18 @@ fun HomeScreen(auth: AuthManager, navigateToLogin: () -> Unit, navigateToEntrena
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .background(MaterialTheme.colorScheme.background)
+                .background(MaterialTheme.colorScheme.surface),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                label = { Text("Buscar Pokémon") },
-                leadingIcon = {
-                    Icon(imageVector = Icons.Default.Search, contentDescription = "Buscar")
-                },
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            )
-
             LazyColumn(
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                item { SectionTitle("Pokémon") }
-                items(pokemonList.filter { it.name.contains(searchQuery, ignoreCase = true) }) { pokemon ->
-                    PokemonItem(pokemon)
+                items(entrenadoresList) { entrenador ->
+                    EntrenadorItem(entrenador)
                 }
             }
         }
@@ -111,12 +89,12 @@ fun HomeScreen(auth: AuthManager, navigateToLogin: () -> Unit, navigateToEntrena
                     Button(
                         onClick = {
                             showDialog = false
-                            navigateToEntrenadores()
+                            navigateToPokemon()
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF90CAF9)), // Azul Claro
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Ver Entrenadores", color = Color.Black)
+                        Text("Ver Pokémons", color = Color.Black)
                     }
                     Button(
                         onClick = {
@@ -153,30 +131,34 @@ fun HomeScreen(auth: AuthManager, navigateToLogin: () -> Unit, navigateToEntrena
     }
 }
 
-
 @Composable
-fun SectionTitle(title: String) {
-    Text(
-        text = title,
-        fontSize = 24.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(16.dp)
-    )
-}
-
-@Composable
-fun PokemonItem(pokemon: Pokemon) {
+fun EntrenadorItem(entrenador: Entrenador) {
     Card(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).clickable {},
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .animateContentSize(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
     ) {
-        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            AsyncImage(model = pokemon.imageUrl, contentDescription = pokemon.name, modifier = Modifier.size(80.dp))
-            Spacer(modifier = Modifier.width(16.dp))
-            Text(pokemon.name.capitalize(), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = entrenador.nombre,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF37474F)
+            )
+            Text(
+                text = "Edad: ${entrenador.edad} | Región: ${entrenador.region}",
+                fontSize = 16.sp,
+                color = Color.Gray
+            )
         }
     }
 }
 
-data class Pokemon(val name: String, val imageUrl: String)
+data class Entrenador(val nombre: String, val edad: Int, val region: String)
