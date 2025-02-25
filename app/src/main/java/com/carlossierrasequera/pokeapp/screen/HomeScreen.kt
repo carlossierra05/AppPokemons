@@ -27,7 +27,7 @@ import java.net.URL
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(auth: AuthManager, navigateToLogin: () -> Unit, navigateToEntrenadores: () -> Unit, navigateToBatallas: () -> Unit) {
-    var showDialog by remember { mutableStateOf(false) } // Controla el AlertDialog
+    var showDialog by remember { mutableStateOf(false) }
     var pokemonList by remember { mutableStateOf<List<Pokemon>>(emptyList()) }
     var searchQuery by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
@@ -108,7 +108,7 @@ fun HomeScreen(auth: AuthManager, navigateToLogin: () -> Unit, navigateToEntrena
                             showDialog = false
                             navigateToEntrenadores()
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF90CAF9)), // Azul Claro
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF90CAF9)),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Ver Entrenadores", color = Color.Black)
@@ -118,7 +118,7 @@ fun HomeScreen(auth: AuthManager, navigateToLogin: () -> Unit, navigateToEntrena
                             showDialog = false
                             navigateToBatallas()
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA5D6A7)), // Verde Suave
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA5D6A7)),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Ver Batallas", color = Color.Black)
@@ -129,15 +129,15 @@ fun HomeScreen(auth: AuthManager, navigateToLogin: () -> Unit, navigateToEntrena
                             auth.signOut()
                             navigateToLogin()
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF9A9A)), // Rojo Suave
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF9A9A)),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Cerrar Sesión", color = Color.Black)
                     }
-                    Spacer(modifier = Modifier.height(8.dp)) // Espaciado entre botones
+                    Spacer(modifier = Modifier.height(8.dp))
                     Button(
                         onClick = { showDialog = false },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFBDBDBD)), // Gris Suave
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFBDBDBD)),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Cancelar", color = Color.Black)

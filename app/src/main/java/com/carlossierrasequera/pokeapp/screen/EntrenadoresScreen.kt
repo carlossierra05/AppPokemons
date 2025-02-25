@@ -113,7 +113,7 @@ fun EntrenadoresScreen(auth: AuthManager, navigateToPokemon: () -> Unit, navigat
         MenuDialog(
             onDismiss = { showDialog = false },
             onNavigateToPokemon = { showDialog = false; navigateToPokemon() },
-            onNavigateToBatallas = { showDialog = false; navigateToBatallas() }, // CORRECTO
+            onNavigateToBatallas = { showDialog = false; navigateToBatallas() },
             onSignOut = {
                 showDialog = false
                 auth.signOut()
@@ -212,22 +212,22 @@ fun MenuDialog(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(
                     onClick = { onDismiss(); onNavigateToPokemon() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF90CAF9)), // Azul Claro
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF90CAF9)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Ver Pokémons", color = Color.Black)
                 }
                 Button(
-                    onClick = { onDismiss(); onNavigateToBatallas() }, // Corregido
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA5D6A7)), // Verde Suave
+                    onClick = { onDismiss(); onNavigateToBatallas() },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA5D6A7)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Ver Batallas", color = Color.Black) // Corregido
+                    Text("Ver Batallas", color = Color.Black)
                 }
 
                 Button(
                     onClick = { onDismiss(); onSignOut() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF9A9A)), // Rojo Suave
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF9A9A)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Cerrar Sesión", color = Color.Black)
@@ -237,7 +237,7 @@ fun MenuDialog(
         confirmButton = {
             Button(
                 onClick = onDismiss,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFBDBDBD)), // Gris Suave
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFBDBDBD)),
             ) {
                 Text("Cancelar", color = Color.Black)
             }

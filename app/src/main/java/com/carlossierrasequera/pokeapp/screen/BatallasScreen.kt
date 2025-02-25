@@ -246,7 +246,7 @@ fun BatallaDialog(
 fun MenuDialogBatallas(
     onDismiss: () -> Unit,
     onNavigateToPokemon: () -> Unit,
-    onNavigateToEntrenadores: () -> Unit, // Ahora se llama correctamente
+    onNavigateToEntrenadores: () -> Unit,
     onSignOut: () -> Unit
 ) {
     AlertDialog(
@@ -256,21 +256,21 @@ fun MenuDialogBatallas(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(
                     onClick = { onDismiss(); onNavigateToPokemon() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF90CAF9)), // Azul Claro
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF90CAF9)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Ver Pokémons", color = Color.Black)
                 }
                 Button(
-                    onClick = { onDismiss(); onNavigateToEntrenadores() }, // Aquí se cambia
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA5D6A7)), // Verde Suave
+                    onClick = { onDismiss(); onNavigateToEntrenadores() },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA5D6A7)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Ver Entrenadores", color = Color.Black) // Cambio de texto
+                    Text("Ver Entrenadores", color = Color.Black)
                 }
                 Button(
                     onClick = { onDismiss(); onSignOut() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF9A9A)), // Rojo Suave
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF9A9A)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Cerrar Sesión", color = Color.Black)
@@ -280,7 +280,7 @@ fun MenuDialogBatallas(
         confirmButton = {
             Button(
                 onClick = onDismiss,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFBDBDBD)), // Gris Suave
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFBDBDBD)),
             ) {
                 Text("Cancelar", color = Color.Black)
             }
