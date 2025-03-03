@@ -212,55 +212,6 @@ fun EntrenadorItem(entrenador: com.carlossierrasequera.pokeapp.data.Entrenador, 
     }
 }
 
-@Composable
-fun MenuDialog(
-    onDismiss: () -> Unit,
-    onNavigateToPokemon: () -> Unit,
-    onNavigateToBatallas: () -> Unit,
-    onSignOut: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Menú") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(
-                    onClick = { onDismiss(); onNavigateToPokemon() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF90CAF9)),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Ver Pokémons", color = Color.Black)
-                }
-                Button(
-                    onClick = { onDismiss(); onNavigateToBatallas() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA5D6A7)),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Ver Batallas", color = Color.Black)
-                }
-
-                Button(
-                    onClick = { onDismiss(); onSignOut() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF9A9A)),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Cerrar Sesión", color = Color.Black)
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = onDismiss,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFBDBDBD)),
-            ) {
-                Text("Cancelar", color = Color.Black)
-            }
-        }
-    )
-}
-
-
-
 
 @Composable
 fun EntrenadorDialog(
