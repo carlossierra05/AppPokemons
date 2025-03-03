@@ -54,9 +54,9 @@ fun Navegacion(auth: AuthManager) {
             }
         }
 
+        // 🔹 NO PASAMOS auth aquí porque EntrenadoresScreen usa ViewModel
         composable<Entrenadores> {
             EntrenadoresScreen(
-                auth,
                 { navController.navigate(Home) },
                 { navController.navigate(Batallas) },
                 {
@@ -67,10 +67,9 @@ fun Navegacion(auth: AuthManager) {
             )
         }
 
-
+        // 🔹 Si BatallasScreen también usa ViewModel, NO PASAMOS auth
         composable<Batallas> {
             BatallasScreen(
-                auth,
                 { navController.navigate(Home) },
                 { navController.navigate(Entrenadores) },
                 {
@@ -80,6 +79,5 @@ fun Navegacion(auth: AuthManager) {
                 }
             )
         }
-
     }
 }

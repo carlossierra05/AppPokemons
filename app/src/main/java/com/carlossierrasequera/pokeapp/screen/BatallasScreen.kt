@@ -1,7 +1,6 @@
 package com.carlossierrasequera.pokeapp.screen
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,21 +11,24 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import com.carlossierrasequera.pokeapp.data.AuthManager
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.carlossierrasequera.pokeapp.data.Batalla
+import com.carlossierrasequera.pokeapp.viewmodel.BatallasViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BatallasScreen(auth: AuthManager, navigateToPokemon: () -> Unit, navigateToEntrenadores: () -> Unit, navigateToLogin: () -> Unit) {
-    val batallasList = remember { mutableStateListOf<Pair<String, Batalla>>() }
-    val db = Firebase.firestore
+fun BatallasScreen(
+    navigateToPokemon: () -> Unit,
+    navigateToEntrenadores: () -> Unit,
+    navigateToLogin: () -> Unit
+) {
+    val viewModel: BatallasViewModel = viewModel()
+    val batallasList by viewModel.batallasList.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
     var showAddDialog by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf(false) }
@@ -37,24 +39,13 @@ fun BatallasScreen(auth: AuthManager, navigateToPokemon: () -> Unit, navigateToE
     var ganador by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
-        db.collection("batallas").get().addOnSuccessListener { result ->
-            batallasList.clear()
-            for (document in result) {
-                batallasList.add(
-                    document.id to Batalla(
-                        document.getString("entrenador1") ?: "Desconocido",
-                        document.getString("entrenador2") ?: "Desconocido",
-                        document.getString("ganador") ?: "Indefinido"
-                    )
-                )
-            }
-        }
+        viewModel.cargarBatallas()
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Batallas", fontSize = 22.sp, fontWeight = FontWeight.Bold) },
+                title = { Text("Batallas", fontSize = 22.sp) },
                 actions = {
                     IconButton(onClick = { showDialog = true }) {
                         Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Menú")
@@ -66,10 +57,8 @@ fun BatallasScreen(auth: AuthManager, navigateToPokemon: () -> Unit, navigateToE
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
-                .background(MaterialTheme.colorScheme.surface),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(padding),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Button(
                 onClick = {
@@ -81,10 +70,9 @@ fun BatallasScreen(auth: AuthManager, navigateToPokemon: () -> Unit, navigateToE
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF81C784)),
                 modifier = Modifier.padding(16.dp)
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Añadir")
-                Spacer(modifier = Modifier.width(8.dp))
                 Text("Añadir Batalla")
             }
+
 
             LazyColumn(
                 modifier = Modifier
@@ -100,9 +88,7 @@ fun BatallasScreen(auth: AuthManager, navigateToPokemon: () -> Unit, navigateToE
                         ganador = batalla.resultado
                         showEditDialog = true
                     }, onDelete = {
-                        db.collection("batallas").document(id).delete().addOnSuccessListener {
-                            batallasList.removeIf { it.first == id }
-                        }
+                        viewModel.eliminarBatalla(id)
                     })
                 }
             }
@@ -116,7 +102,6 @@ fun BatallasScreen(auth: AuthManager, navigateToPokemon: () -> Unit, navigateToE
             onNavigateToEntrenadores = { showDialog = false; navigateToEntrenadores() },
             onSignOut = {
                 showDialog = false
-                auth.signOut()
                 navigateToLogin()
             }
         )
@@ -133,16 +118,7 @@ fun BatallasScreen(auth: AuthManager, navigateToPokemon: () -> Unit, navigateToE
             onGanadorChange = { ganador = it },
             onConfirm = {
                 if (entrenador1.isNotBlank() && entrenador2.isNotBlank() && ganador.isNotBlank()) {
-                    val nuevaBatalla = Batalla(entrenador1, entrenador2, ganador)
-                    db.collection("batallas").add(
-                        hashMapOf(
-                            "entrenador1" to nuevaBatalla.entrenador1,
-                            "entrenador2" to nuevaBatalla.entrenador2,
-                            "ganador" to nuevaBatalla.resultado
-                        )
-                    ).addOnSuccessListener { document ->
-                        batallasList.add(document.id to nuevaBatalla)
-                    }
+                    viewModel.agregarBatalla(entrenador1, entrenador2, ganador)
                 }
                 showAddDialog = false
             },
@@ -161,85 +137,13 @@ fun BatallasScreen(auth: AuthManager, navigateToPokemon: () -> Unit, navigateToE
             onGanadorChange = { ganador = it },
             onConfirm = {
                 selectedBatalla?.let { (id, _) ->
-                    val updatedBatalla = Batalla(entrenador1, entrenador2, ganador)
-                    db.collection("batallas").document(id).set(
-                        hashMapOf(
-                            "entrenador1" to updatedBatalla.entrenador1,
-                            "entrenador2" to updatedBatalla.entrenador2,
-                            "ganador" to updatedBatalla.resultado
-                        )
-                    ).addOnSuccessListener {
-                        batallasList.replaceAll { if (it.first == id) id to updatedBatalla else it }
-                    }
+                    viewModel.editarBatalla(id, entrenador1, entrenador2, ganador)
                 }
                 showEditDialog = false
             },
             onDismiss = { showEditDialog = false }
         )
     }
-}
-
-
-@Composable
-fun BatallaItem(batalla: Batalla, onEdit: () -> Unit, onDelete: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).animateContentSize(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
-    ) {
-        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-            Text(text = "Entrenador 1: ${batalla.entrenador1}", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            Text(text = "Entrenador 2: ${batalla.entrenador2}", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            Text(text = "Ganador: ${batalla.resultado}", fontSize = 16.sp, color = Color.Gray)
-            Row {
-                IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, contentDescription = "Editar", tint = Color.Blue) }
-                IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = Color.Red) }
-            }
-        }
-    }
-}
-
-data class Batalla(val entrenador1: String, val entrenador2: String, val resultado: String)
-
-@Composable
-fun BatallaDialog(
-    title: String,
-    entrenador1: String,
-    entrenador2: String,
-    resultado: String,
-    onEntrenador1Change: (String) -> Unit,
-    onEntrenador2Change: (String) -> Unit,
-    onGanadorChange: (String) -> Unit,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(value = entrenador1, onValueChange = onEntrenador1Change, label = { Text("Entrenador 1") })
-                OutlinedTextField(value = entrenador2, onValueChange = onEntrenador2Change, label = { Text("Entrenador 2") })
-                OutlinedTextField(value = resultado, onValueChange = onGanadorChange, label = { Text("Ganador") })
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = onConfirm,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF81C784)) // Verde Claro
-            ) {
-                Text("Guardar")
-            }
-        },
-        dismissButton = {
-            Button(
-                onClick = onDismiss,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFBDBDBD)) // Gris Suave
-            ) {
-                Text("Cancelar")
-            }
-        }
-    )
 }
 
 @Composable
@@ -287,5 +191,66 @@ fun MenuDialogBatallas(
         }
     )
 }
+
+@Composable
+fun BatallaItem(batalla: Batalla, onEdit: () -> Unit, onDelete: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).animateContentSize(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
+    ) {
+        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+            Text(text = "Entrenador 1: ${batalla.entrenador1}", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(text = "Entrenador 2: ${batalla.entrenador2}", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(text = "Ganador: ${batalla.resultado}", fontSize = 16.sp, color = Color.Gray)
+            Row {
+                IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, contentDescription = "Editar", tint = Color.Blue) }
+                IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = Color.Red) }
+            }
+        }
+    }
+}
+
+@Composable
+fun BatallaDialog(
+    title: String,
+    entrenador1: String,
+    entrenador2: String,
+    resultado: String,
+    onEntrenador1Change: (String) -> Unit,
+    onEntrenador2Change: (String) -> Unit,
+    onGanadorChange: (String) -> Unit,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(value = entrenador1, onValueChange = onEntrenador1Change, label = { Text("Entrenador 1") })
+                OutlinedTextField(value = entrenador2, onValueChange = onEntrenador2Change, label = { Text("Entrenador 2") })
+                OutlinedTextField(value = resultado, onValueChange = onGanadorChange, label = { Text("Ganador") })
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF81C784)) // Verde Claro
+            ) {
+                Text("Guardar")
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFBDBDBD)) // Gris Suave
+            ) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+
 
 
