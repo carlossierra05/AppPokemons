@@ -19,34 +19,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.carlossierrasequera.pokeapp.data.AuthManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.json.JSONObject
-import java.net.URL
+import com.carlossierrasequera.pokeapp.viewmodel.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(auth: AuthManager, navigateToLogin: () -> Unit, navigateToEntrenadores: () -> Unit, navigateToBatallas: () -> Unit) {
+fun HomeScreen(
+    auth: AuthManager,
+    navigateToLogin: () -> Unit,
+    navigateToEntrenadores: () -> Unit,
+    navigateToBatallas: () -> Unit,
+    viewModel: HomeViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
     var showDialog by remember { mutableStateOf(false) }
-    var pokemonList by remember { mutableStateOf<List<Pokemon>>(emptyList()) }
     var searchQuery by remember { mutableStateOf("") }
-    val coroutineScope = rememberCoroutineScope()
-
-    LaunchedEffect(Unit) {
-        coroutineScope.launch(Dispatchers.IO) {
-            val response = URL("https://pokeapi.co/api/v2/pokemon?limit=10").readText()
-            val results = JSONObject(response).getJSONArray("results")
-            val pokemons = mutableListOf<Pokemon>()
-            for (i in 0 until results.length()) {
-                val obj = results.getJSONObject(i)
-                val name = obj.getString("name")
-                val imageUrl =
-                    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${i + 1}.png"
-                pokemons.add(Pokemon(name, imageUrl))
-            }
-            pokemonList = pokemons
-        }
-    }
+    val pokemonList by viewModel.pokemonList.collectAsState()
 
     Scaffold(
         topBar = {
@@ -149,6 +135,7 @@ fun HomeScreen(auth: AuthManager, navigateToLogin: () -> Unit, navigateToEntrena
 }
 
 
+
 @Composable
 fun SectionTitle(title: String) {
     Text(
@@ -160,7 +147,7 @@ fun SectionTitle(title: String) {
 }
 
 @Composable
-fun PokemonItem(pokemon: Pokemon) {
+fun PokemonItem(pokemon: com.carlossierrasequera.pokeapp.data.Pokemon) {
     Card(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).clickable {},
         shape = RoundedCornerShape(12.dp),
@@ -169,9 +156,7 @@ fun PokemonItem(pokemon: Pokemon) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             AsyncImage(model = pokemon.imageUrl, contentDescription = pokemon.name, modifier = Modifier.size(80.dp))
             Spacer(modifier = Modifier.width(16.dp))
-            Text(pokemon.name.capitalize(), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text(pokemon.name.replaceFirstChar { it.uppercaseChar() }, fontSize = 20.sp, fontWeight = FontWeight.Bold)
         }
     }
 }
-
-data class Pokemon(val name: String, val imageUrl: String)
